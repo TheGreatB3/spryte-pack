@@ -1,15 +1,27 @@
 from enum import IntEnum
-from typing import List
+from typing import List, Callable
 
 from PIL import Image, ImageChops
 
 from spryte_pack.rect import Rect
+
+__all__ = ["ImageRect"]
+
+
+def static_vars(**kwargs):
+    def decorate(func):
+        for k in kwargs:
+            setattr(func, k, kwargs[k])
+        return func
+
+    return decorate
 
 
 class ImageRect(Rect):
     """
     Holds an image and various transform attributes.
     """
+
     class Rotation(IntEnum):
         """Values for image rotation"""
         ROT_0 = 0
@@ -18,13 +30,13 @@ class ImageRect(Rect):
         ROT_3 = 270
 
         @property
-        def transpose_op(self) -> int:
+        def transpose_op(self) -> Callable[[Image.Image], Image.Image]:
             """Gets the PIL transpose operation for rotating."""
             return {
-                self.ROT_0: Image.NONE,
-                self.ROT_1: Image.ROTATE_90,
-                self.ROT_2: Image.ROTATE_180,
-                self.ROT_3: Image.ROTATE_270,
+                self.ROT_0: lambda x: x,
+                self.ROT_1: lambda x: x.transpose(Image.ROTATE_90),
+                self.ROT_2: lambda x: x.transpose(Image.ROTATE_180),
+                self.ROT_3: lambda x: x.transpose(Image.ROTATE_270),
             }[self.value]
 
     def __init__(self, image: Image.Image):
@@ -50,9 +62,17 @@ class ImageRect(Rect):
     def width(self) -> int:
         return self.image.width
 
+    @width.setter
+    def width(self, val: int):
+        pass
+
     @property
     def height(self) -> int:
         return self.image.height
+
+    @height.setter
+    def height(self, val: int):
+        pass
 
     @property
     def total_width(self) -> int:
@@ -76,26 +96,28 @@ class ImageRect(Rect):
     def trim_image(self):
         self._image = self.get_trimmed_image()
 
+    @static_vars(_cached_rotation=None, _cached_is_trimmed=None, _cached_rotated_image=None)
     def get_transformed_image(self) -> Image.Image:
         """A copy of the image with rotation and trimming applied."""
         # Cache entry for rotation
-        if not hasattr(self.get_transformed_image, "__cached_rotation"):
-            self.get_transformed_image.__cached_rotation = None
+        if not hasattr(self.get_transformed_image, "_cached_rotation"):
+            setattr(self.get_transformed_image, "_cached_rotation", None)
+            self.get_transformed_image._cached_rotation = None
         # Cache entry for trimming
-        if not hasattr(self.get_transformed_image, "__cached_is_trimmed"):
-            self.get_transformed_image.__cached_is_trimmed = None
+        if not hasattr(self.get_transformed_image, "_cached_is_trimmed"):
+            self.get_transformed_image._cached_is_trimmed = None
         # Cache entry for image
-        if not hasattr(self.get_transformed_image, "__cached_rotated_image"):
-            self.get_transformed_image.__cached_rotated_image = None
-        if (self.get_transformed_image.__cached_rotation != self._rotation or
-                self.get_transformed_image.__cached_is_trimmed != self._is_trimmed):
+        if not hasattr(self.get_transformed_image, "_cached_rotated_image"):
+            self.get_transformed_image._cached_rotated_image = None
+        if (self.get_transformed_image._cached_rotation != self._rotation or
+                self.get_transformed_image._cached_is_trimmed != self._is_trimmed):
             # Set cache entries
-            self.get_transformed_image.__cached_rotation = self._rotation
-            self.get_transformed_image.__cached_is_trimmed = self._is_trimmed
-            self.get_transformed_image.__cached_rotated_image = self.get_maybe_trimmed_image().transpose(
-                self._rotation.transpose_op)
+            self.get_transformed_image.__dict__["_cached_rotation"] = self._rotation
+            self.get_transformed_image.__dict__["_cached_is_trimmed"] = self._is_trimmed
+            self.get_transformed_image.__dict__["_cached_rotated_image"] = self._rotation.transpose_op(
+                self.get_maybe_trimmed_image())
         # Return cached image
-        return self.get_transformed_image.__cached_rotated_image
+        return getattr(self.get_transformed_image, "_cached_rotated_image", self.get_maybe_trimmed_image())
 
     def apply_transform_to_image(self):
         self._image = self.get_transformed_image()
