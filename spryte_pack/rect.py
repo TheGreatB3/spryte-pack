@@ -13,3 +13,11 @@ class Rect:
             self.padding_y = padding
         else:
             self.padding_x, self.padding_y = padding
+
+    @property
+    def padding(self) -> Tuple[int, int]:
+        return self.padding_x, self.padding_y
+
+    @padding.setter
+    def padding(self, padding: Tuple[int, int]):
+        self.padding_x, self.padding_y = padding
