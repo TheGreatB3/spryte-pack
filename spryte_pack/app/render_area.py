@@ -9,6 +9,13 @@ from PyQt5.QtGui import (
     QBrush,
     QPixmap,
     QPalette,
+    QPainter,
+    QPaintEvent,
+    QPainterPath,
+)
+from PyQt5.QtCore import (
+    QPoint,
+    QRect,
 )
 
 
@@ -28,3 +35,20 @@ class RenderArea(QWidget):
 
         self.setBackgroundRole(QPalette.Base)
         self.setAutoFillBackground(True)
+
+    def paintEvent(self, event: QPaintEvent):
+        qp = QPainter()
+        qp.begin(self)
+        points = (
+            QPoint(10, 80),
+            QPoint(20, 10),
+            QPoint(80, 30),
+            QPoint(90, 70),
+        )
+        rect = QRect(10, 20, 80, 60)
+        path = QPainterPath()
+        path.moveTo(20, 80)
+        path.lineTo(20, 30)
+        path.cubicTo(80, 0, 50, 50, 80, 80)
+        qp.drawPoints(*points)
+        qp.end()

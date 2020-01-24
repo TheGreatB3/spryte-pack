@@ -10,6 +10,7 @@ from PyQt5.QtGui import (
 )
 
 from spryte_pack.solver_env import SolverEnv
+from spryte_pack.app.render_area import RenderArea
 
 
 class SolverApp:
@@ -23,6 +24,8 @@ class SolverApp:
 
         self._window = QWidget()
         layout = QVBoxLayout()
+        render_area = RenderArea()
+        layout.addWidget(render_area)
         label = QLabel("Solver App")
         label.setPixmap(pixmap_t)
         layout.addWidget(label)
