@@ -7,6 +7,9 @@ from spryte_pack.rect import Rect
 
 
 class ImageRect(Rect):
+    """
+    Holds an image and various transform attributes.
+    """
     class Rotation(IntEnum):
         """Values for image rotation"""
         ROT_0 = 0
@@ -14,19 +17,15 @@ class ImageRect(Rect):
         ROT_2 = 180
         ROT_3 = 270
 
-        @classmethod
-        def get_pil_transpose_op(cls, val: "ImageRect.Rotation"):
-            map_ = {
-                cls.ROT_0: Image.NONE,
-                cls.ROT_1: Image.ROTATE_90,
-                cls.ROT_2: Image.ROTATE_180,
-                cls.ROT_3: Image.ROTATE_270,
-            }
-            return map_[val]
-
         @property
-        def transpose_op(self):
-            return self.get_pil_transpose_op(self.value)
+        def transpose_op(self) -> int:
+            """Gets the PIL transpose operation for rotating."""
+            return {
+                self.ROT_0: Image.NONE,
+                self.ROT_1: Image.ROTATE_90,
+                self.ROT_2: Image.ROTATE_180,
+                self.ROT_3: Image.ROTATE_270,
+            }[self.value]
 
     def __init__(self, image: Image.Image):
         super().__init__(image.width, image.height)
@@ -38,11 +37,13 @@ class ImageRect(Rect):
             self._filenames.append(image.filename)
 
     @property
-    def unedited_image(self) -> Image.Image:
+    def untransformed_image(self) -> Image.Image:
+        """The image without unapplied transforms."""
         return self._image
 
     @property
     def image(self) -> Image.Image:
+        """The image with internal transforms visible"""
         return self.get_transformed_image()
 
     @property
@@ -55,18 +56,20 @@ class ImageRect(Rect):
 
     @property
     def total_width(self) -> int:
-        """Transformed image width + padding"""
+        """Transformed image width + padding."""
         return self.width + self.padding_x * 2
 
     @property
     def total_height(self) -> int:
-        """Transformed image height + padding"""
+        """Transformed image height + padding."""
         return self.height + self.padding_y * 2
 
-    def get_maybe_trimmed_image(self):
+    def get_maybe_trimmed_image(self) -> Image.Image:
+        """The image, with trimming if _is_trimmed is set to True."""
         return self.get_trimmed_image() if self._is_trimmed else self._image
 
     def get_trimmed_image(self) -> Image.Image:
+        """A copy of the image, cropped to its bounding box."""
         bbox = self._image.getbbox()
         return self._image.crop(bbox)
 
@@ -74,21 +77,27 @@ class ImageRect(Rect):
         self._image = self.get_trimmed_image()
 
     def get_transformed_image(self) -> Image.Image:
+        """A copy of the image with rotation and trimming applied."""
+        # Cache entry for rotation
         if not hasattr(self.get_transformed_image, "__cached_rotation"):
             self.get_transformed_image.__cached_rotation = None
+        # Cache entry for trimming
         if not hasattr(self.get_transformed_image, "__cached_is_trimmed"):
             self.get_transformed_image.__cached_is_trimmed = None
+        # Cache entry for image
         if not hasattr(self.get_transformed_image, "__cached_rotated_image"):
             self.get_transformed_image.__cached_rotated_image = None
         if (self.get_transformed_image.__cached_rotation != self._rotation or
                 self.get_transformed_image.__cached_is_trimmed != self._is_trimmed):
+            # Set cache entries
             self.get_transformed_image.__cached_rotation = self._rotation
             self.get_transformed_image.__cached_is_trimmed = self._is_trimmed
             self.get_transformed_image.__cached_rotated_image = self.get_maybe_trimmed_image().transpose(
                 self._rotation.transpose_op)
+        # Return cached image
         return self.get_transformed_image.__cached_rotated_image
 
-    def apply_rotation_to_image(self):
+    def apply_transform_to_image(self):
         self._image = self.get_transformed_image()
 
     @staticmethod
