@@ -45,6 +45,24 @@ class ImageRect(Rect):
     def image(self) -> Image.Image:
         return self.get_transformed_image()
 
+    @property
+    def width(self) -> int:
+        return self.image.width
+
+    @property
+    def height(self) -> int:
+        return self.image.height
+
+    @property
+    def total_width(self) -> int:
+        """Transformed image width + padding"""
+        return self.width + self.padding_x * 2
+
+    @property
+    def total_height(self) -> int:
+        """Transformed image height + padding"""
+        return self.height + self.padding_y * 2
+
     def get_maybe_trimmed_image(self):
         return self.get_trimmed_image() if self._is_trimmed else self._image
 
