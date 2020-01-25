@@ -21,7 +21,7 @@ class SolverApp(QWidget):
             self._solver_env.load_images_from_files(("../../assets/python-logo-transparent.png",)))
 
         layout = QVBoxLayout()
-        self.render_area = RenderArea()
+        self.render_area = RenderArea(self._solver_env)
         layout.addWidget(self.render_area)
 
         self.setLayout(layout)
