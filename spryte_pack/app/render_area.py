@@ -36,6 +36,8 @@ class RenderArea(QWidget):
         self._antialiased = False
         self._transformed = False
 
+        self.setMinimumSize(100, 100)
+
         self.setBackgroundRole(QPalette.Base)
         self.setAutoFillBackground(True)
 

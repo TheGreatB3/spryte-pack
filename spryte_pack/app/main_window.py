@@ -26,6 +26,8 @@ class SolverApp(QWidget):
 
         self.setLayout(layout)
 
+        self.resize(600, 400)
+
 
 if __name__ == '__main__':
     q_app = QApplication([])
