@@ -3,10 +3,12 @@ from PyQt5.QtWidgets import (
     QLabel,
     QWidget,
     QVBoxLayout,
+    QScrollArea,
 )
 from PyQt5.QtGui import (
     QPainter,
     QPixmap,
+    QPalette,
 )
 
 from spryte_pack.solver_env import SolverEnv
@@ -21,7 +23,12 @@ class SolverApp(QWidget):
             self._solver_env.load_images_from_files(("../../assets/python-logo-transparent.png",)))
 
         layout = QVBoxLayout()
+
         self.render_area = RenderArea(self._solver_env)
+        self._scroll_area = QScrollArea()
+        self._scroll_area.setBackgroundRole(QPalette.Dark)
+        # self._scroll_area.setWidget(self.render_area)
+        # layout.addWidget(self._scroll_area)
         layout.addWidget(self.render_area)
 
         self.setLayout(layout)

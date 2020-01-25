@@ -11,6 +11,7 @@ from PyQt5.QtGui import (
     QPainter,
     QPaintEvent,
     QPainterPath,
+    QColor,
 )
 from PyQt5.QtCore import (
     QPoint,
@@ -22,6 +23,7 @@ from spryte_pack.solver_env import SolverEnv
 
 
 class RenderArea(QWidget):
+
     @unique
     class Shape(Enum):
         LINE = auto()
@@ -30,9 +32,10 @@ class RenderArea(QWidget):
     def __init__(self, solver_env: SolverEnv, parent=None):
         super().__init__(parent)
         self._solver_env = solver_env
+        self._transparency_checkerboard = QPixmap("../../assets/transparency_checkerboard.png")
         self._shape: RenderArea.Shape
-        self._pen: QPen
-        self._brush: QBrush
+        self._pen = QPen()
+        self._brush = QBrush()
         self._antialiased = False
         self._transformed = False
 
@@ -44,6 +47,8 @@ class RenderArea(QWidget):
     def paintEvent(self, event: QPaintEvent):
         qp = QPainter()
         qp.begin(self)
+
+        self.draw_checkerboard(qp)
         points = (
             QPoint(10, 80),
             QPoint(20, 10),
@@ -67,3 +72,7 @@ class RenderArea(QWidget):
                            image_rect.width, image_rect.height)
         qp.drawRect(outer_rect)
         qp.drawImage(inner_rect, image_rect.qt_image)
+
+    def draw_checkerboard(self, qp: QPainter):
+        qp.drawTiledPixmap(self.rect(), self._transparency_checkerboard)
+
