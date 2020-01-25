@@ -29,7 +29,7 @@ class SolverApp:
         label = QLabel("Solver App")
         label.setPixmap(pixmap_t)
         layout.addWidget(label)
-        for i in self._solver_env._image_rects:
+        for i in self._solver_env.image_rects:
             label_ = QLabel("Image")
             label_.setPixmap(QPixmap.fromImage(i.qt_image))
             layout.addWidget(label_)

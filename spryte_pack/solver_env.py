@@ -18,3 +18,7 @@ class SolverEnv:
     @staticmethod
     def load_images_from_files(paths: Collection[str]):
         return tuple(Image.open(p) for p in paths)
+
+    @property
+    def image_rects(self) -> List[ImageRect]:
+        return self._image_rects
