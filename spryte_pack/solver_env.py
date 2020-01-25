@@ -11,6 +11,7 @@ class SolverEnv:
     """
     def __init__(self):
         self._image_rects: List[ImageRect] = []
+        self.pack_width, self.pack_height = 1024, 1024
 
     def add_images(self, images: Collection[Image.Image]):
         self._image_rects.extend(tuple(ImageRect(image) for image in images))
