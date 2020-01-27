@@ -7,6 +7,8 @@ verify_ssl = true
 
 [packages]
 pillow = "*"
+pyqt5 = "*"
+pyqt5-stubs = "*"
 
 [requires]
 python_version = "3.7"

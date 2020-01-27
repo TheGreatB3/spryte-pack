@@ -1,7 +1,7 @@
 from enum import IntEnum
 from typing import List, Callable
 
-from PIL import Image, ImageChops
+from PIL import Image, ImageChops, ImageQt
 
 from spryte_pack.rect import Rect
 
@@ -55,8 +55,13 @@ class ImageRect(Rect):
 
     @property
     def image(self) -> Image.Image:
-        """The image with internal transforms visible"""
+        """The image with internal transforms visible."""
         return self.get_transformed_image()
+
+    @property
+    def qt_image(self) -> ImageQt.ImageQt:
+        """The image with internal transforms visible, converted for Qt."""
+        return ImageQt.ImageQt(self.image)
 
     @property
     def width(self) -> int:
