@@ -25,10 +25,6 @@ class SolverApp(QWidget):
         layout = QVBoxLayout()
 
         self.render_area = RenderArea(self._solver_env)
-        self._scroll_area = QScrollArea()
-        self._scroll_area.setBackgroundRole(QPalette.Dark)
-        # self._scroll_area.setWidget(self.render_area)
-        # layout.addWidget(self._scroll_area)
         layout.addWidget(self.render_area)
 
         self.setLayout(layout)
